@@ -1,0 +1,18 @@
+[package]
+name = "hydra-client"
+version = "0.1.0"
+edition = "2018"
+authors = ["Johan Fleury <jfleury@arcaik.net>"]
+license = "Apache-2.0"
+description = "A client implementation for the ORY Hydra API"
+readme = "README.md"
+homepage = "https://gitlab.com/Arcaik/hydra-client-rs"
+repository = "https://gitlab.com/Arcaik/hydra-client-rs"
+
+[dependencies]
+reqwest = { version = "0.10", features = ["blocking", "json"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+url = "2.1"
+chrono = { version = "0.4", features = ["serde"] }
