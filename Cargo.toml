@@ -1,6 +1,6 @@
 [package]
 name = "hydra-client"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2018"
 authors = ["Johan Fleury <jfleury@arcaik.net>"]
 license = "Apache-2.0"
