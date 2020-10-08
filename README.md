@@ -1,6 +1,6 @@
-# hydra-rs
+# hydra-client-rs
 
-hydra-rs is a client implementation for the [ORY Hydra
+hydra-client-rs is a client implementation for the [ORY Hydra
 API](https://www.ory.sh/hydra/) written in Rust.
 
 It is fairly incomplete, and mainly developed for the needs of
