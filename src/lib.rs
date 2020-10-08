@@ -78,14 +78,14 @@ struct AcceptConsentRequest {
     grant_access_token_audience: Vec<String>,
     grant_scope: Vec<String>,
     handled_at: DateTime<Utc>,
-    remember: bool,
-    remember_for: u64,
-    session: ConsentRequestSession,
+    remember: Option<bool>,
+    remember_for: Option<u64>,
+    session: Option<ConsentRequestSession>,
 }
 
 #[derive(Debug, Serialize)]
 struct ConsentRequestSession {
-    id_token: HashMap<String, String>,
+    id_token: Option<HashMap<String, String>>,
 }
 
 // Logout Types
@@ -165,11 +165,14 @@ impl Hydra {
         consent_challenge: String,
         grant_access_token_audience: Vec<String>,
         grant_scope: Vec<String>,
-        remember: bool,
-        remember_for: u64,
-        claims: HashMap<String, String>,
+        remember: Option<bool>,
+        remember_for: Option<u64>,
+        claims: Option<HashMap<String, String>>,
     ) -> Result<CompletedRequest, Error> {
-        let session = ConsentRequestSession { id_token: claims };
+        let session = match claims.is_some() {
+            true => Some(ConsentRequestSession { id_token: claims }),
+            false => None,
+        };
 
         let body = AcceptConsentRequest {
             grant_access_token_audience,
@@ -177,7 +180,7 @@ impl Hydra {
             handled_at: Utc::now(),
             remember,
             remember_for,
-            session: session,
+            session,
         };
 
         return self.put(
