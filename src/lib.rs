@@ -111,11 +111,15 @@ pub enum Error {
 #[derive(Debug, Clone)]
 pub struct Hydra {
     url: Url,
+    client: reqwest::blocking::Client,
 }
 
 impl Hydra {
     pub fn new(url: Url) -> Hydra {
-        return Hydra { url };
+        return Hydra {
+            url,
+            client: reqwest::blocking::Client::new(),
+        };
     }
 
     // Login
@@ -235,7 +239,7 @@ impl Hydra {
         let mut url = url;
         url.set_query(query);
 
-        let r = reqwest::blocking::Client::new().get(url).send()?;
+        let r = self.client.get(url).send()?;
 
         return Hydra::deserialize(r);
     }
@@ -249,10 +253,7 @@ impl Hydra {
         let mut url = url;
         url.set_query(query);
 
-        let r = reqwest::blocking::Client::new()
-            .put(url)
-            .json(&body)
-            .send()?;
+        let r = self.client.put(url).json(&body).send()?;
 
         return Hydra::deserialize(r);
     }
