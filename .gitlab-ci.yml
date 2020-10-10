@@ -1,0 +1,36 @@
+---
+stages:
+  - test
+  - publish
+
+test:fmt:
+  stage: test
+  image: rust:latest
+  before_script:
+    - rustup component add rustfmt
+  script:
+    - cargo fmt -- --check
+
+test:lint:
+  stage: test
+  image: rust:latest
+  before_script:
+    - rustup component add clippy
+  script:
+    - cargo clippy --all-targets --all-features -- -D warnings
+
+test:unit:
+  stage: test
+  image: rust:latest
+  script:
+    - cargo test
+
+publish:
+  stage: publish
+  image: rust:latest
+  only:
+    - /^v\d+.\d+.\d+$/
+  before_script:
+    - cargo login ${CARGO_PUBLISH_TOKEN}
+  script:
+    - cargo publish
