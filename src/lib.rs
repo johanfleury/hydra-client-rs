@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use chrono::{DateTime, Utc};
-use reqwest;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use thiserror::Error;
@@ -116,19 +115,19 @@ pub struct Hydra {
 
 impl Hydra {
     pub fn new(url: Url) -> Hydra {
-        return Hydra {
+        Hydra {
             url,
             client: reqwest::blocking::Client::new(),
-        };
+        }
     }
 
     // Login
 
     pub fn get_login_request(&self, login_challenge: String) -> Result<LoginRequest, Error> {
-        return self.get(
+        self.get(
             self.endpoint("/oauth2/auth/requests/login")?,
             Some(format!("login_challenge={}", login_challenge).as_str()),
-        );
+        )
     }
 
     pub fn accept_login_request(
@@ -141,27 +140,27 @@ impl Hydra {
         remember_for: Option<u64>,
     ) -> Result<CompletedRequest, Error> {
         let body = AcceptLoginRequest {
-            acr: acr,
-            force_subject_identifier: force_subject_identifier,
-            remember: remember,
-            remember_for: remember_for,
+            acr,
+            force_subject_identifier,
+            remember,
+            remember_for,
             subject,
         };
 
-        return self.put(
+        self.put(
             self.endpoint("/oauth2/auth/requests/login/accept")?,
             Some(format!("login_challenge={}", login_challenge).as_str()),
             Some(body),
-        );
+        )
     }
 
     // Consent
 
     pub fn get_consent_request(&self, consent_challenge: String) -> Result<ConsentRequest, Error> {
-        return self.get(
+        self.get(
             self.endpoint("/oauth2/auth/requests/consent")?,
             Some(format!("consent_challenge={}", consent_challenge).as_str()),
-        );
+        )
     }
 
     pub fn accept_consent_request(
@@ -187,11 +186,11 @@ impl Hydra {
             session,
         };
 
-        return self.put(
+        self.put(
             self.endpoint("/oauth2/auth/requests/consent/accept")?,
             Some(format!("consent_challenge={}", consent_challenge).as_str()),
             Some(body),
-        );
+        )
     }
 
     // Logout
@@ -200,38 +199,37 @@ impl Hydra {
         &self,
         logout_challenge: String,
     ) -> Result<CompletedRequest, Error> {
-        return self.put(
+        self.put(
             self.endpoint("/oauth2/auth/requests/logout/accept")?,
             Some(format!("logout_challenge={}", logout_challenge).as_str()),
             AcceptLogoutRequest,
-        );
+        )
     }
 
     // Internal
 
     fn endpoint(&self, endpoint: &str) -> Result<Url, Error> {
-        return self
-            .url
+        self.url
             .clone()
             .join(endpoint)
-            .map_err(|e| Error::URLParseError(e));
+            .map_err(Error::URLParseError)
     }
 
     fn deserialize<R: for<'de> Deserialize<'de>>(
         r: reqwest::blocking::Response,
     ) -> Result<R, Error> {
-        let status = r.status().clone();
+        let status = r.status();
 
         if status.is_success() {
-            return r.json().map_err(|e| Error::RequestError(e));
+            r.json().map_err(Error::RequestError)
         } else {
-            return match r.json::<ApiError>() {
+            match r.json::<ApiError>() {
                 Ok(api_error) => Err(Error::ApiError(api_error)),
                 Err(_) => Err(Error::UnknownError(format!(
                     "unable to parse reply from Hydra API (status: {})",
                     status.clone()
                 ))),
-            };
+            }
         }
     }
 
@@ -241,7 +239,7 @@ impl Hydra {
 
         let r = self.client.get(url).send()?;
 
-        return Hydra::deserialize(r);
+        Hydra::deserialize(r)
     }
 
     fn put<T: Serialize, R: for<'de> Deserialize<'de>>(
@@ -255,6 +253,6 @@ impl Hydra {
 
         let r = self.client.put(url).json(&body).send()?;
 
-        return Hydra::deserialize(r);
+        Hydra::deserialize(r)
     }
 }
