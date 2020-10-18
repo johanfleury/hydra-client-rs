@@ -14,6 +14,7 @@
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::collections::HashMap;
 use thiserror::Error;
 use url::{self, Url};
@@ -84,7 +85,7 @@ struct AcceptConsentRequest {
 
 #[derive(Debug, Serialize)]
 struct ConsentRequestSession {
-    id_token: Option<HashMap<String, String>>,
+    id_token: Option<HashMap<String, Value>>,
 }
 
 // Logout Types
@@ -170,7 +171,7 @@ impl Hydra {
         grant_scope: Vec<String>,
         remember: Option<bool>,
         remember_for: Option<u64>,
-        claims: Option<HashMap<String, String>>,
+        claims: Option<HashMap<String, Value>>,
     ) -> Result<CompletedRequest, Error> {
         let session = match claims.is_some() {
             true => Some(ConsentRequestSession { id_token: claims }),
