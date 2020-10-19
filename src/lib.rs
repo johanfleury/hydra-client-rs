@@ -50,13 +50,19 @@ pub struct OAuth2Client {
 #[derive(Debug, Deserialize)]
 pub struct LoginRequest {
     pub client: OAuth2Client,
+
+    #[serde(default)]
+    pub context: HashMap<String, Value>,
+
     pub skip: bool,
+
     pub subject: String,
 }
 
 #[derive(Debug, Serialize)]
 struct AcceptLoginRequest {
     acr: Option<String>,
+    context: Option<HashMap<String, Value>>,
     force_subject_identifier: Option<String>,
     remember: Option<bool>,
     remember_for: Option<u64>,
@@ -67,9 +73,15 @@ struct AcceptLoginRequest {
 
 #[derive(Debug, Deserialize)]
 pub struct ConsentRequest {
+    #[serde(default)]
+    pub context: HashMap<String, Value>,
+
     pub requested_access_token_audience: Vec<String>,
+
     pub requested_scope: Vec<String>,
+
     pub skip: bool,
+
     pub subject: String,
 }
 
@@ -131,17 +143,20 @@ impl Hydra {
         )
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn accept_login_request(
         &self,
         login_challenge: String,
         subject: String,
         acr: Option<String>,
+        context: Option<HashMap<String, Value>>,
         force_subject_identifier: Option<String>,
         remember: Option<bool>,
         remember_for: Option<u64>,
     ) -> Result<CompletedRequest, Error> {
         let body = AcceptLoginRequest {
             acr,
+            context,
             force_subject_identifier,
             remember,
             remember_for,
