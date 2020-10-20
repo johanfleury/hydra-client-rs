@@ -4,7 +4,7 @@ stages:
   - publish
 
 .rust: &rust
-  <<: *rust
+  image: rust:latest
   cache:
     paths:
       - .cargo/
