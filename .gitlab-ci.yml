@@ -3,34 +3,46 @@ stages:
   - test
   - publish
 
+.rust: &rust
+  <<: *rust
+  cache:
+    paths:
+      - .cargo/
+      - target/
+
 test:fmt:
   stage: test
-  image: rust:latest
+  <<: *rust
   before_script:
+    - export CARGO_HOME="$(pwd)/.cargo"
     - rustup component add rustfmt
   script:
     - cargo fmt -- --check
 
 test:lint:
   stage: test
-  image: rust:latest
+  <<: *rust
   before_script:
+    - export CARGO_HOME="$(pwd)/.cargo"
     - rustup component add clippy
   script:
     - cargo clippy --all-targets --all-features -- -D warnings
 
 test:unit:
   stage: test
-  image: rust:latest
+  <<: *rust
+  before_script:
+    - export CARGO_HOME="$(pwd)/.cargo"
   script:
     - cargo test
 
 publish:
   stage: publish
-  image: rust:latest
+  <<: *rust
   only:
     - /^v\d+.\d+.\d+$/
   before_script:
+    - export CARGO_HOME="$(pwd)/.cargo"
     - cargo login ${CARGO_PUBLISH_TOKEN}
   script:
     - cargo publish
